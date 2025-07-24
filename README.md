@@ -23,8 +23,8 @@ Encerra o programa.
 ## ⚙️ Como executar
 
 1. Certifique-se de ter o **Python 3.6+** instalado.
-2. Salve o código em um arquivo chamado, por exemplo, `banco.py`.
-3. Execute no terminal:
+2. Clone o reposiório.
+3. Entre na pasta clonada, e execute no terminal:
 
 ```bash
 python banco.py
