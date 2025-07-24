@@ -20,14 +20,20 @@ Encerra o programa.
 
 ---
 
-## ⚙️ Como executar
+## 💻 Como Executar
 
-1. Certifique-se de ter o **Python 3.6+** instalado.
-2. Clone o reposiório.
-3. Entre na pasta clonada, e execute no terminal:
+1. Certifique-se de ter o Python 3 instalado.
+2. Clone este repositório:
 
 ```bash
-python banco.py
+git clone https://github.com/gabriela-angel/sistema-bancario-simples.git
+cd sistema-bancario-simples
+```
+
+3. Execute o script:
+
+```bash
+python3 banco.py
 ```
 
 4. Utilize o menu interativo para navegar pelas opções.
