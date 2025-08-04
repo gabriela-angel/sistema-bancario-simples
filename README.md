@@ -1,88 +1,91 @@
-# 💰 Sistema Bancário Simples
+# 🏦 Sistema Bancário em Python (POO)
 
-Este é um sistema bancário simples desenvolvido em **Python**, com interface de linha de comando, que permite ao usuário realizar operações básicas como **depósitos**, **saques** e **visualizar o extrato da conta**.
+Este é um projeto de sistema bancário desenvolvido em Python, utilizando os princípios de **Programação Orientada a Objetos (POO)**. O sistema permite o gerenciamento de usuários, contas bancárias, operações financeiras e exibição de extratos de maneira estruturada e modular.
 
-## 📋 Funcionalidades
+## 🧠 Sobre o Projeto
 
-🔹 **[1] Depositar**  
-Permite adicionar um valor positivo ao saldo da conta.
+Este sistema simula operações bancárias simples por meio de um menu de terminal interativo. Ele foi desenvolvido com fins educacionais para praticar conceitos fundamentais de POO em Python, como:
 
-🔹 **[2] Sacar**  
-Permite retirar um valor do saldo, respeitando os seguintes limites:
-- Saques de no máximo **R$500** por operação
-- Até **3 saques por sessão**
+- Criação e herança de classes
+- Encapsulamento de atributos
+- Composição entre objetos (Cliente → Conta → Transações)
+- Uso de classes abstratas
+- Métodos de classe e propriedades
 
-🔹 **[3] Visualizar Extrato**  
-Exibe todas as movimentações realizadas, além do saldo atual formatado.
+## ⚙️ Funcionalidades
 
-🔹 **[0] Sair**  
-Encerra o programa.
+- 👤 Criar novo usuário (CPF, nome, data de nascimento e endereço)
+- 🔐 Fazer login via CPF
+- 🏦 Criar múltiplas contas bancárias por usuário
+- 💸 Realizar depósitos e saques em contas específicas
+- 📃 Visualizar extrato de uma conta ou de todas as contas do usuário
+- 📂 Listar todas as contas associadas ao usuário logado
 
----
+## 📋 Regras de Negócio
 
-## 💻 Como Executar
+- Cada usuário (CPF) pode ter **várias contas bancárias**.
+- O limite de saques por conta é de **3 saques diários**.
+- Cada saque tem um limite máximo de **R$ 500,00**.
+- O extrato mostra todas as movimentações financeiras e o saldo atual da conta.
 
-1. Certifique-se de ter o Python 3 instalado.
-2. Clone este repositório:
-
-```bash
-git clone https://github.com/gabriela-angel/sistema-bancario-simples.git
-cd sistema-bancario-simples
-```
-
-3. Execute o script:
-
-```bash
-python3 banco.py
-```
-
-4. Utilize o menu interativo para navegar pelas opções.
-
----
-
-## 🧪 Exemplo de uso
+## 🧾 Exemplo de Uso
 
 ```text
-============ MENU ============
+========= BEM VINDO! =========
 |                            |
-|   [1] Depositar            |
-|   [2] Sacar                |
-|   [3] Visualizar extrato   |
+|   [1] Entrar               |
+|   [2] Criar usuario        |
 |   [0] Sair                 |
 |                            |
 ==============================
 
-=> 1
-Valor a ser depositado: 100
-Depósito de R$100.00 realizado com sucesso.
-
-=> 2
-Informe o valor do saque: 50
-Saque de R$50.00 realizado com sucesso.
-
-=> 3
-================= EXTRATO =================
-|                                         |
-|                           + R$ 100.00   |
-|                             - R$50.00   |
-|                        TOTAL: R$50.00   |
-|                                         |
-===========================================
+=> 
 ```
 
----
+Após o login, o usuário pode acessar o menu principal com opções para movimentar contas e visualizar extratos.
 
-## 🚫 Restrições
+## 🧪 Executando o Projeto
 
-⚠️ Não é possível:
-- Depositar ou sacar valores negativos ou nulos
-- Sacar mais do que **R$500** por operação
-- Realizar mais de **3 saques por sessão**
-- Salvar o extrato após encerrar o programa (sem persistência)
+1. Certifique-se de ter o **Python 3** instalado na sua máquina.
+2. Clone este repositório:
 
----
+```bash
+git clone https://github.com/gabriela-angel/sistema-bancario-simples-oop.git
+cd sistema-bancario-simples-oop
+```
 
-## 🧑‍💻 Autor
+3. Execute o script principal:
 
-Desenvolvido por **Gabriela Angel** 🧠  
-Este projeto é um exercício educacional para treinar estruturas de controle, tratamento de erros e manipulação de strings em Python.
+```bash
+python3 main.py
+```
+
+## 🖼️ Diagrama de Classes (UML)
+
+O projeto segue um modelo UML com as seguintes entidades:
+
+```
+Cliente (abstract)  ◄──── PessoaFisica
+        ▲
+        │
+      Conta ◄──── ContaCorrente
+        │
+    Historico
+        │
+    Transacao (abstract) ◄──── Deposito
+                         ◄──── Saque
+```
+
+## ✅ Pontos de Aprendizado
+
+- Utilização de composição em vez de herança onde aplicável
+- Abstração com classes abstratas (`Transacao`)
+- Encapsulamento com propriedades (`@property`)
+- Controle de fluxo, validações e tratamento de entrada do usuário
+
+## 🧼 Organização e Boas Práticas
+
+- Código modular e separado por responsabilidades
+- Sem uso de variáveis globais
+- Utilização de `try/except` para tratar entradas inválidas
+- Métodos como `__str__()` personalizados para impressão amigável
