@@ -1,24 +1,31 @@
-# 💰 Sistema Bancário Simples
+# 💰 Sistema Bancário em Python
 
-Este é um sistema bancário simples desenvolvido em **Python**, com interface de linha de comando, que permite ao usuário realizar operações básicas como **depósitos**, **saques** e **visualizar o extrato da conta**.
+Este é um projeto de sistema bancário simples feito em Python, com funcionalidades para criação de usuários, múltiplas contas por usuário, saques, depósitos e visualização de extrato bancário.
 
-## 📋 Funcionalidades
+## 🧠 Sobre o Projeto
 
-🔹 **[1] Depositar**  
-Permite adicionar um valor positivo ao saldo da conta.
+O sistema simula operações bancárias comuns com um menu interativo via terminal. O projeto foi criado com fins educacionais e visa praticar os fundamentos de programação em Python, como:
 
-🔹 **[2] Sacar**  
-Permite retirar um valor do saldo, respeitando os seguintes limites:
-- Saques de no máximo **R$500** por operação
-- Até **3 saques por sessão**
+- Estruturas condicionais
+- Funções com parâmetros nomeados e posicionais
+- Estruturas de dados (listas e dicionários)
+- Modularização e organização de código
 
-🔹 **[3] Visualizar Extrato**  
-Exibe todas as movimentações realizadas, além do saldo atual formatado.
+## ⚙️ Funcionalidades
 
-🔹 **[0] Sair**  
-Encerra o programa.
+- 📌 Criar novo usuário (com CPF, nome, nascimento e endereço)
+- 🧾 Entrar no sistema com CPF
+- 🏦 Criar novas contas bancárias
+- 💸 Realizar depósitos e saques
+- 📃 Visualizar extrato individual ou de todas as contas do usuário
+- 🗂️ Listar todas as contas associadas a um usuário
 
----
+## 📋 Regras de Negócio
+
+- Cada CPF pode ter **várias contas bancárias**, mas um CPF não pode se repetir entre usuários.
+- O limite de saques diários por conta é de **3 saques**.
+- O valor máximo por saque é de **R$ 500,00**.
+- O extrato mostra os lançamentos realizados e o saldo total.
 
 ## 💻 Como Executar
 
@@ -26,8 +33,8 @@ Encerra o programa.
 2. Clone este repositório:
 
 ```bash
-git clone https://github.com/gabriela-angel/sistema-bancario-simples.git
-cd sistema-bancario-simples
+git clone https://github.com/gabriela-angel/sistema-bancario-simples-otimizado.git
+cd sistema-bancario-simples-otimizado
 ```
 
 3. Execute o script:
@@ -36,53 +43,27 @@ cd sistema-bancario-simples
 python3 banco.py
 ```
 
-4. Utilize o menu interativo para navegar pelas opções.
-
----
-
-## 🧪 Exemplo de uso
+## 🧪 Exemplo de Uso
 
 ```text
-============ MENU ============
+========= BEM VINDO! =========
 |                            |
-|   [1] Depositar            |
-|   [2] Sacar                |
-|   [3] Visualizar extrato   |
+|   [1] Entrar               |
+|   [2] Criar usuario        |
 |   [0] Sair                 |
 |                            |
 ==============================
 
-=> 1
-Valor a ser depositado: 100
-Depósito de R$100.00 realizado com sucesso.
-
-=> 2
-Informe o valor do saque: 50
-Saque de R$50.00 realizado com sucesso.
-
-=> 3
-================= EXTRATO =================
-|                                         |
-|                           + R$ 100.00   |
-|                             - R$50.00   |
-|                        TOTAL: R$50.00   |
-|                                         |
-===========================================
+=> 
 ```
 
----
+Após o login, o usuário pode acessar o menu principal com todas as operações bancárias disponíveis.
 
-## 🚫 Restrições
+## 🧼 Organização do Código
 
-⚠️ Não é possível:
-- Depositar ou sacar valores negativos ou nulos
-- Sacar mais do que **R$500** por operação
-- Realizar mais de **3 saques por sessão**
-- Salvar o extrato após encerrar o programa (sem persistência)
-
----
-
-## 🧑‍💻 Autor
-
-Desenvolvido por **Gabriela Angel** 🧠  
-Este projeto é um exercício educacional para treinar estruturas de controle, tratamento de erros e manipulação de strings em Python.
+- Funções puras com tratamento de erros via `try/except`
+- Separação clara de responsabilidades:
+  - `menu()` → exibição de menus
+  - `depositar()`, `sacar()`, `visualizar_extrato()` → operações financeiras
+  - `criar_conta()`, `listar_contas()` → gerenciamento de contas
+  - `novo_user()` → cadastro de usuários
