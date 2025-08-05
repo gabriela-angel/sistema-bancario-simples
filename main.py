@@ -299,16 +299,16 @@ def visualizar_extrato(user, contas):
 			print("Operação inválida, por favor selecione novamente.")
 
 	for conta in conta_escolhida:
-		transacoes = conta.historico.gerar_relatorio(tipo_transacao=filtro)
+		tem_transacao = False
 		extrato = ""
-		if not transacoes:
+		for transacao in conta.historico.gerar_relatorio(tipo_transacao=filtro):
+			tem_transacao = True
+			if transacao["tipo"] == "Deposito":
+				extrato += "\n|" + f"+ R$ {transacao['valor']:.2f}".rjust(38) + "   |"
+			else:
+				extrato += "\n|" + f"- R$ {transacao['valor']:.2f}".rjust(38) + "   |"
+		if not tem_transacao:
 			extrato = "\n|   Não foram realizadas movimentações.   |"
-		else:
-			for transacao in transacoes:
-				if transacao["tipo"] == "Deposito":
-					extrato += "\n|" + f"+ R$ {transacao['valor']:.2f}".rjust(38) + "   |"
-				else:
-					extrato += "\n|" + f"- R$ {transacao['valor']:.2f}".rjust(38) + "   |"
 		print("\n================= EXTRATO =================")
 		print("|                                         |")
 		print("|" + f"CONTA: {conta.numero}".rjust(38) + "   |")
