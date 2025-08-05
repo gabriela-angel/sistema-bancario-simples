@@ -154,7 +154,7 @@ class Historico:
 					transacoes.append(transacao)
 		else:
 			transacoes = self._transacoes
-		return transacoes
+		yield transacoes
 
 
 class Transacao(ABC):
