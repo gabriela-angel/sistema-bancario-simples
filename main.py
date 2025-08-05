@@ -1,5 +1,27 @@
 import textwrap
+import functools
 from abc import ABC, abstractmethod
+from datetime import datetime
+
+class ContaIterador:
+	def __init__(self, contas):
+		self.contas = contas
+		self.counter = 0
+
+	def __iter__(self):
+		return self
+
+	def __next__(self):
+		try:
+			conta = self.contas[self.counter]
+			self.counter += 1
+			return ("|   " + f"AGENCIA: {conta.agencia}".ljust(35) + "|\n" +
+			"|   " + f"CONTA: {conta.numero}".ljust(35) + "|\n" +
+			"|   " + f"TITULAR: {conta.cliente.nome}".ljust(35) + "|\n" +
+			"|   " + f"SALDO: {conta.saldo}".ljust(35) + "|\n" +
+			"|                                      |")
+		except IndexError:
+			raise StopIteration
 
 class Cliente:
 	def __init__(self, endereco):
@@ -22,12 +44,13 @@ class PessoaFisica(Cliente):
 	def listar_contas(self):
 		print("\n================ CONTAS ================")
 		print("|                                      |")
-		for conta in self.contas:
-			print(conta)
 		if not self.contas:
 			print("|       Não foram criadas contas       |")
 			print("|          para este usuario.          |")
 			print("|                                      |")
+		else:
+			for conta in ContaIterador(self.contas):
+				print(conta)
 		print("========================================")
 
 class Conta:
@@ -118,9 +141,21 @@ class Historico:
 		self.transacoes.append(
 			{
 				"tipo": transacao.__class__.__name__,
-				"valor": transacao.valor
+				"valor": transacao.valor,
+				"data": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
 			}
 		)
+
+	def gerar_relatorio(self, tipo_transacao=None):
+		transacoes = []
+		if tipo_transacao != None:
+			for transacao in self._transacoes:
+				if transacao["tipo"] == tipo_transacao:
+					transacoes.append(transacao)
+		else:
+			transacoes = self._transacoes
+		return transacoes
+
 
 class Transacao(ABC):
 	@property
@@ -188,6 +223,16 @@ def menu(option):
 	else:
 		return "NULL"
 
+def log_transacao(func):
+	@functools.wraps(func)
+	def envelope(*args, **kwargs):
+		func(*args, **kwargs)
+		tipo = func.__name__.upper()
+		data = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+		print(f"{data} {tipo}")
+
+	return envelope
+
 def buscar_conta(cpf, numero_conta, contas):
 	for conta in contas:
 		if conta.cliente.cpf == cpf and conta.numero == numero_conta:
@@ -195,6 +240,7 @@ def buscar_conta(cpf, numero_conta, contas):
 	print("Conta não encontrada ou não pertence ao usuário.")
 	return None
 
+@log_transacao
 def sacar(user, contas):
 	n_conta = int(input("\nDigite o número da conta para o saque: ").strip())
 	conta = buscar_conta(user.cpf, n_conta, contas)
@@ -209,6 +255,7 @@ def sacar(user, contas):
 	except ValueError:
 		print("Operação falhou! O valor informado é inválido.")
 
+@log_transacao
 def depositar(user, contas):
 	n_conta = int(input("\nDigite o número da conta para o depósito: ").strip())
 	conta = buscar_conta(user.cpf, n_conta, contas)
@@ -223,6 +270,7 @@ def depositar(user, contas):
 	except ValueError:
 		print("Operação falhou! O valor informado é inválido.")
 
+@log_transacao
 def visualizar_extrato(user, contas):
 	n_conta = int(input("\nDigite o número da conta, ou digite \"0\" para ver o extrato de todas as contas: ").strip())
 	if n_conta != 0:
@@ -237,8 +285,26 @@ def visualizar_extrato(user, contas):
 			return
 		conta_escolhida = user.contas
 
+	while True:
+		filtro = input("\nDeseja filtrar por tipo de transação? [Y/N] => ").strip()
+		if filtro.upper() == 'Y':
+			filtro = input("\nFiltrar por:\n\t[0]Apenas saques\n\t[1]Apenas depósitos\n\n\t=> ").strip()
+			if filtro == '0':
+				filtro = "Saque"
+			elif filtro == '1':
+				filtro = "Deposito"
+			else:
+				print("Operação inválida, por favor selecione novamente.")
+				continue
+			break
+		elif filtro.upper() == 'N':
+			filtro = None
+			break
+		else:
+			print("Operação inválida, por favor selecione novamente.")
+
 	for conta in conta_escolhida:
-		transacoes = conta.historico.transacoes
+		transacoes = conta.historico.gerar_relatorio(tipo_transacao=filtro)
 		extrato = ""
 		if not transacoes:
 			extrato = "\n|   Não foram realizadas movimentações.   |"
@@ -257,6 +323,7 @@ def visualizar_extrato(user, contas):
 		print("|                                         |")
 		print("===========================================\n")
 
+@log_transacao
 def criar_conta(user, contas):
 	numero_conta = len(contas) + 1
 	conta = ContaCorrente.nova_conta(cliente=user, numero=numero_conta)
@@ -283,6 +350,7 @@ def perfil_user(user, contas):
 		else:
 			print("Operação inválida, por favor selecione novamente.")
 
+@log_transacao
 def adicionar_user(users):
 	nome = input("Digite o nome do usuário: ").strip()
 	if not nome:
