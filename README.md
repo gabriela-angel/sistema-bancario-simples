@@ -1,4 +1,4 @@
-# 🏦 Sistema Bancário em Python (POO)
+# 🏦 Sistema Bancário em Python
 
 Este é um projeto de sistema bancário desenvolvido em Python, utilizando os princípios de **Programação Orientada a Objetos (POO)**. O sistema permite o gerenciamento de usuários, contas bancárias, operações financeiras e exibição de extratos de maneira estruturada e modular.
 
@@ -11,6 +11,9 @@ Este sistema simula operações bancárias simples por meio de um menu de termin
 - Composição entre objetos (Cliente → Conta → Transações)
 - Uso de classes abstratas
 - Métodos de classe e propriedades
+- **Decorador** para log de transações
+- **Iterador** para listar contas de forma eficiente
+- **Gerador** para filtrar transações no extrato
 
 ## ⚙️ Funcionalidades
 
@@ -50,8 +53,8 @@ Após o login, o usuário pode acessar o menu principal com opções para movime
 2. Clone este repositório:
 
 ```bash
-git clone https://github.com/gabriela-angel/sistema-bancario-simples-oop.git
-cd sistema-bancario-simples-oop
+git clone https://github.com/gabriela-angel/sistema-bancario-simples.git
+cd sistema-bancario-simples
 ```
 
 3. Execute o script principal:
@@ -82,6 +85,9 @@ Cliente (abstract)  ◄──── PessoaFisica
 - Abstração com classes abstratas (`Transacao`)
 - Encapsulamento com propriedades (`@property`)
 - Controle de fluxo, validações e tratamento de entrada do usuário
+- Decoradores para log de transações, aplicando a funcionalidade de forma transparente
+- Iteradores para facilitar a exibição das contas de um cliente de maneira eficiente
+- Geradores para filtrar transações ao exibir extratos, permitindo um uso mais eficiente da memória
 
 ## 🧼 Organização e Boas Práticas
 
