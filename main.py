@@ -1,7 +1,12 @@
+# Estabelecer um limite de 10 transacoes diarias para uma conta -> informar quando o user tiver atingido o limite; ele excedeu o numero de transacoes permitidas para aquele dia
+# Mostrar data e hora de todas as transacoes no extrato
+
+# ALTERAR PARA SO RECEBER MENSAGEM DE ACAO QUANDO TEM SUCESSO
+
 import textwrap
 import functools
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, date
 
 class ContaIterador:
 	def __init__(self, contas):
@@ -24,12 +29,18 @@ class ContaIterador:
 			raise StopIteration
 
 class Cliente:
-	def __init__(self, endereco):
+	def __init__(self, endereco, limite_transacoes=10):
 		self.endereco = endereco
 		self.contas = []
+		self._limite_transacoes = limite_transacoes
 
 	def realizar_transacao(self, conta, transacao):
-		transacao.registrar(conta)
+		numero_transacoes = len(conta.historico.transacoes_do_dia())
+
+		if numero_transacoes >= self._limite_transacoes:
+			print("Operação falhou! Limite de transações diárias excedido.")
+		else:
+			transacao.registrar(conta)
 
 	def adicionar_conta(self, conta):
 		self.contas.append(conta)
@@ -121,7 +132,7 @@ class ContaCorrente(Conta):
 		else:
 			return super().sacar(valor)
 		return False
-	
+
 	def __str__(self):
 		return (
 			"|   " + f"AGENCIA: {self.agencia}".ljust(35) + "|\n" +
@@ -150,6 +161,13 @@ class Historico:
 		for transacao in self._transacoes:
 			if tipo_transacao is None or transacao["tipo"] == tipo_transacao:
 				yield transacao
+
+	def transacoes_do_dia(self):
+		transacoes_do__dia = []
+		for transacao in self._transacoes:
+			if datetime.strptime(transacao["data"], "%d-%m-%Y %H:%M:%S").date() == date.today():
+				transacoes_do__dia.append(transacao)
+		return transacoes_do__dia
 
 
 class Transacao(ABC):
@@ -221,10 +239,11 @@ def menu(option):
 def log_transacao(func):
 	@functools.wraps(func)
 	def envelope(*args, **kwargs):
-		func(*args, **kwargs)
-		tipo = func.__name__.upper()
-		data = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-		print(f"{data} {tipo}")
+		result = func(*args, **kwargs)
+		if result:
+			tipo = func.__name__.upper()
+			data = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+			print(f"{data} {tipo}")
 
 	return envelope
 
@@ -237,10 +256,15 @@ def buscar_conta(cpf, numero_conta, contas):
 
 @log_transacao
 def sacar(user, contas):
-	n_conta = int(input("\nDigite o número da conta para o saque: ").strip())
+	n_conta = input("\nDigite o número da conta para o saque: ").strip()
+	try:
+		n_conta = int(n_conta)
+	except ValueError:
+		print("Operação falhou! O número informado é inválido.")
+		return False
 	conta = buscar_conta(user.cpf, n_conta, contas)
 	if not conta:
-		return
+		return False
 
 	saque = input("Informe o valor do saque: ")
 	try:
@@ -249,13 +273,20 @@ def sacar(user, contas):
 		user.realizar_transacao(conta=conta, transacao=transacao)
 	except ValueError:
 		print("Operação falhou! O valor informado é inválido.")
+		return False
+	return True
 
 @log_transacao
 def depositar(user, contas):
-	n_conta = int(input("\nDigite o número da conta para o depósito: ").strip())
+	n_conta = input("\nDigite o número da conta para o depósito: ").strip()
+	try:
+		n_conta = int(n_conta)
+	except ValueError:
+		print("Operação falhou! O número informado é inválido.")
+		return False
 	conta = buscar_conta(user.cpf, n_conta, contas)
 	if not conta:
-		return
+		return False
 
 	deposito = input("Valor a ser depositado: ")
 	try:
@@ -264,20 +295,27 @@ def depositar(user, contas):
 		user.realizar_transacao(conta=conta, transacao=transacao)
 	except ValueError:
 		print("Operação falhou! O valor informado é inválido.")
+		return False
+	return True
 
 @log_transacao
 def visualizar_extrato(user, contas):
-	n_conta = int(input("\nDigite o número da conta, ou digite \"0\" para ver o extrato de todas as contas: ").strip())
+	n_conta = input("\nDigite o número da conta, ou digite \"0\" para ver o extrato de todas as contas: ").strip()
+	try:
+		n_conta = int(n_conta)
+	except ValueError:
+		print("Operação falhou! O número informado é inválido.")
+		return False
 	if n_conta != 0:
 		conta = buscar_conta(user.cpf, n_conta, contas)
 		if conta:
 			conta_escolhida = [conta]
 		else:
-			return
+			return False
 	else:
 		if not user.contas:
 			print("\nNenhuma conta encontrada.")
-			return
+			return False
 		conta_escolhida = user.contas
 
 	while True:
@@ -303,10 +341,12 @@ def visualizar_extrato(user, contas):
 		extrato = ""
 		for transacao in conta.historico.gerar_relatorio(tipo_transacao=filtro):
 			tem_transacao = True
+			extrato += "\n|" + f"{transacao['data']}".rjust(38) + "   |"
 			if transacao["tipo"] == "Deposito":
 				extrato += "\n|" + f"+ R$ {transacao['valor']:.2f}".rjust(38) + "   |"
 			else:
 				extrato += "\n|" + f"- R$ {transacao['valor']:.2f}".rjust(38) + "   |"
+			extrato += "\n|                                         |"
 		if not tem_transacao:
 			extrato = "\n|   Não foram realizadas movimentações.   |"
 		print("\n================= EXTRATO =================")
@@ -317,6 +357,7 @@ def visualizar_extrato(user, contas):
 		print("|" + f"TOTAL: R${conta.saldo:.2f}".rjust(38) + "   |")
 		print("|                                         |")
 		print("===========================================\n")
+	return True
 
 @log_transacao
 def criar_conta(user, contas):
@@ -326,6 +367,7 @@ def criar_conta(user, contas):
 	user.adicionar_conta(conta)
 
 	print(f"Conta criada com sucesso!")
+	return True
 
 def perfil_user(user, contas):
 	while (True):
@@ -350,7 +392,7 @@ def adicionar_user(users):
 	nome = input("Digite o nome do usuário: ").strip()
 	if not nome:
 		print("Todos os campos são obrigatórios.")
-		return
+		return False
 
 	nascimento = input("Digite a data de nascimento do usuário (DD/MM/AAAA): ").strip()
 	if (
@@ -363,21 +405,21 @@ def adicionar_user(users):
 		nascimento[5] != '/'
 	):
 		print("\nData de nascimento inválida. Por favor, use o formato DD/MM/AAAA.")
-		return
+		return False
 
 	cpf = input("Digite o CPF do usuário (apenas números): ").strip()
 	if not cpf or not cpf.isdigit() or len(cpf) != 11:
 		print("\nCPF inválido. Deve conter apenas números e ter 11 dígitos.")
-		return
+		return False
 	for user in users:
 		if user.cpf == cpf:
 			print("\nUsuário já cadastrado com esse CPF.")
-			return
+			return False
 
 	endereco = input("Digite o endereço do usuário (formato: Logradouro, Número - Bairro - Cidade/UF): ").strip()
 	if not endereco:
 		print("\nTodos os campos são obrigatórios.")
-		return
+		return False
 
 	novo_cliente = PessoaFisica(
 		endereco=endereco,
@@ -386,6 +428,7 @@ def adicionar_user(users):
 		data_nascimento=nascimento)
 	users.append(novo_cliente)
 	print("\nUsuário cadastrado com sucesso!")
+	return True
 
 def main():
 	users = []
