@@ -40,7 +40,9 @@ class Cliente:
 		if numero_transacoes >= self._limite_transacoes:
 			print("Operação falhou! Limite de transações diárias excedido.")
 		else:
-			transacao.registrar(conta)
+			sucesso = transacao.registrar(conta)
+			return sucesso
+		return False
 
 	def adicionar_conta(self, conta):
 		self.contas.append(conta)
@@ -127,7 +129,7 @@ class ContaCorrente(Conta):
 
 		if numero_saques >= self._limite_saques:
 			print("Operação falhou! Limite de saques diários excedido.")
-		elif valor >= self._limite:
+		elif valor > self._limite:
 			print("Operação falhou! O valor do saque excede o limite.")
 		else:
 			return super().sacar(valor)
@@ -191,6 +193,7 @@ class Deposito(Transacao):
 		sucesso_transacao = conta.depositar(self.valor)
 		if sucesso_transacao:
 			conta.historico.adicionar_transacao(self)
+		return sucesso_transacao
 
 class Saque(Transacao):
 	def __init__(self, valor: float):
@@ -204,6 +207,7 @@ class Saque(Transacao):
 		sucesso_transacao = conta.sacar(self.valor)
 		if sucesso_transacao:
 			conta.historico.adicionar_transacao(self)
+		return sucesso_transacao
 
 def menu(option):
 	welcome_menu = """
@@ -270,7 +274,9 @@ def sacar(user, contas):
 	try:
 		saque = float(saque)
 		transacao = Saque(saque)
-		user.realizar_transacao(conta=conta, transacao=transacao)
+		sucesso = user.realizar_transacao(conta=conta, transacao=transacao)
+		if not sucesso:
+			return False
 	except ValueError:
 		print("Operação falhou! O valor informado é inválido.")
 		return False
@@ -292,11 +298,32 @@ def depositar(user, contas):
 	try:
 		deposito = float(deposito)
 		transacao = Deposito(deposito)
-		user.realizar_transacao(conta=conta, transacao=transacao)
+		sucesso = user.realizar_transacao(conta=conta, transacao=transacao)
+		if not sucesso:
+			return False
 	except ValueError:
 		print("Operação falhou! O valor informado é inválido.")
 		return False
 	return True
+
+def filtrar_extrato():
+	while True:
+		filtro = input("\nDeseja filtrar por tipo de transação? [Y/N] => ").strip()
+		if filtro.upper() == 'Y':
+			filtro = input("\nFiltrar por:\n\t[0]Apenas saques\n\t[1]Apenas depósitos\n\n\t=> ").strip()
+			if filtro == '0':
+				filtro = "Saque"
+			elif filtro == '1':
+				filtro = "Deposito"
+			else:
+				print("Operação inválida, por favor selecione novamente.")
+				continue
+			return filtro
+		elif filtro.upper() == 'N':
+			filtro = None
+			return filtro
+		else:
+			print("Operação inválida, por favor selecione novamente.")
 
 @log_transacao
 def visualizar_extrato(user, contas):
@@ -318,24 +345,7 @@ def visualizar_extrato(user, contas):
 			return False
 		conta_escolhida = user.contas
 
-	while True:
-		filtro = input("\nDeseja filtrar por tipo de transação? [Y/N] => ").strip()
-		if filtro.upper() == 'Y':
-			filtro = input("\nFiltrar por:\n\t[0]Apenas saques\n\t[1]Apenas depósitos\n\n\t=> ").strip()
-			if filtro == '0':
-				filtro = "Saque"
-			elif filtro == '1':
-				filtro = "Deposito"
-			else:
-				print("Operação inválida, por favor selecione novamente.")
-				continue
-			break
-		elif filtro.upper() == 'N':
-			filtro = None
-			break
-		else:
-			print("Operação inválida, por favor selecione novamente.")
-
+	filtro = filtrar_extrato()
 	for conta in conta_escolhida:
 		tem_transacao = False
 		extrato = ""
@@ -405,6 +415,11 @@ def adicionar_user(users):
 		nascimento[5] != '/'
 	):
 		print("\nData de nascimento inválida. Por favor, use o formato DD/MM/AAAA.")
+		return False
+	try:
+		nascimento = datetime.strptime(nascimento, "%d/%m/%Y")
+	except ValueError:
+		print("\nData de nascimento inválida. Por favor, use o formato DD/MM/AAAA e insira uma data válida.")
 		return False
 
 	cpf = input("Digite o CPF do usuário (apenas números): ").strip()

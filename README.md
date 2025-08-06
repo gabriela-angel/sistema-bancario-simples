@@ -27,6 +27,7 @@ Este sistema simula operações bancárias simples por meio de um menu de termin
 ## 📋 Regras de Negócio
 
 - Cada usuário (CPF) pode ter **várias contas bancárias**.
+- O limite de transações por conta é de **10 transações diárias**.
 - O limite de saques por conta é de **3 saques diários**.
 - Cada saque tem um limite máximo de **R$ 500,00**.
 - O extrato mostra todas as movimentações financeiras e o saldo atual da conta.
