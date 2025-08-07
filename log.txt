@@ -1,0 +1,152 @@
+07-08-2025 19:48:37 ADICIONAR_USER executada com argumentos:
+	[<PessoaFisica: ('12345678901')>]
+RETORNO: True
+
+07-08-2025 19:50:35 ADICIONAR_USER executada com argumentos:
+	[<PessoaFisica: ('12345678901')>]
+RETORNO: False
+
+07-08-2025 19:51:00 ADICIONAR_USER executada com argumentos:
+	[<PessoaFisica: ('12345678901')>, <PessoaFisica: ('10987654321')>]
+RETORNO: True
+
+07-08-2025 19:52:25 CRIAR_CONTA executada com argumentos:
+	<PessoaFisica: ('12345678901')>
+	[<ContaCorrente: ('0001', '1', 'bella')>]
+RETORNO: True
+
+07-08-2025 19:52:25 CRIAR_CONTA executada com argumentos:
+	<PessoaFisica: ('12345678901')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>]
+RETORNO: True
+
+07-08-2025 19:53:57 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('12345678901')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>]
+RETORNO: True
+
+07-08-2025 19:54:35 VISUALIZAR_EXTRATO executada com argumentos:
+	<PessoaFisica: ('12345678901')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>]
+RETORNO: True
+
+07-08-2025 19:54:51 CRIAR_CONTA executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>]
+RETORNO: True
+
+07-08-2025 19:54:51 CRIAR_CONTA executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>]
+RETORNO: True
+
+07-08-2025 19:54:53 CRIAR_CONTA executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>]
+RETORNO: True
+
+07-08-2025 19:55:13 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>]
+RETORNO: False
+
+07-08-2025 19:55:40 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>]
+RETORNO: True
+
+07-08-2025 19:55:47 SACAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>]
+RETORNO: True
+
+07-08-2025 19:55:53 SACAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>]
+RETORNO: True
+
+07-08-2025 16:57:57 CRIAR_CONTA executada com argumentos:
+	<PessoaFisica: ('12345678901')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 16:58:09 VISUALIZAR_EXTRATO executada com argumentos:
+	<PessoaFisica: ('12345678901')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 16:59:06 VISUALIZAR_EXTRATO executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:04:22 VISUALIZAR_EXTRATO executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:04:29 SACAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:04:34 SACAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: False
+
+07-08-2025 17:06:10 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:16 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:20 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:24 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:29 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:32 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:36 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:06:40 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: False
+
+07-08-2025 17:07:18 DEPOSITAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: False
+
+07-08-2025 17:07:45 VISUALIZAR_EXTRATO executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: True
+
+07-08-2025 17:08:12 SACAR executada com argumentos:
+	<PessoaFisica: ('10987654321')>
+	[<ContaCorrente: ('0001', '1', 'bella')>, <ContaCorrente: ('0001', '2', 'bella')>, <ContaCorrente: ('0001', '3', 'Pedro')>, <ContaCorrente: ('0001', '4', 'Pedro')>, <ContaCorrente: ('0001', '5', 'Pedro')>, <ContaCorrente: ('0001', '6', 'bella')>]
+RETORNO: False
+
