@@ -1,631 +1,703 @@
-import textwrap
+import csv
 import functools
+import textwrap
 from abc import ABC, abstractmethod
 from datetime import datetime, date
 from pathlib import Path
-import csv
 
 ROOT_PATH = Path(__file__).parent
 
+
 class ContaIterador:
-	def __init__(self, contas):
-		self.contas = contas
-		self.counter = 0
+    def __init__(self, contas):
+        self.contas = contas
+        self.counter = 0
 
-	def __iter__(self):
-		return self
+    def __iter__(self):
+        return self
 
-	def __next__(self):
-		try:
-			conta = self.contas[self.counter]
-			self.counter += 1
-			return ("|   " + f"AGENCIA: {conta.agencia}".ljust(35) + "|\n" +
-			"|   " + f"CONTA: {conta.numero}".ljust(35) + "|\n" +
-			"|   " + f"TITULAR: {conta.cliente.nome}".ljust(35) + "|\n" +
-			"|   " + f"SALDO: {conta.saldo}".ljust(35) + "|\n" +
-			"|                                      |")
-		except IndexError:
-			raise StopIteration
+    def __next__(self):
+        try:
+            conta = self.contas[self.counter]
+            self.counter += 1
+            return (
+                "|   " + f"AGENCIA: {conta.agencia}".ljust(35) + "|\n" +
+                "|   " + f"CONTA: {conta.numero}".ljust(35) + "|\n" +
+                "|   " + f"TITULAR: {conta.cliente.nome}".ljust(35) + "|\n" +
+                "|   " + f"SALDO: {conta.saldo}".ljust(35) + "|\n" +
+                "|                                      |"
+            )
+        except IndexError:
+            raise StopIteration
+
 
 class Cliente:
-	def __init__(self, endereco, limite_transacoes=10):
-		self.endereco = endereco
-		self.contas = []
-		self._limite_transacoes = limite_transacoes
+    def __init__(self, endereco, limite_transacoes=10):
+        self.endereco = endereco
+        self.contas = []
+        self._limite_transacoes = limite_transacoes
 
-	def realizar_transacao(self, conta, transacao):
-		numero_transacoes = len(conta.historico.transacoes_do_dia())
+    def realizar_transacao(self, conta, transacao):
+        numero_transacoes = len(conta.historico.transacoes_do_dia())
 
-		if numero_transacoes >= self._limite_transacoes:
-			print("Operação falhou! Limite de transações diárias excedido.")
-		else:
-			sucesso = transacao.registrar(conta)
-			return sucesso
-		return False
+        if numero_transacoes >= self._limite_transacoes:
+            print("Operação falhou! Limite de transações diárias excedido.")
+        else:
+            sucesso = transacao.registrar(conta)
+            return sucesso
+        return False
 
-	def adicionar_conta(self, conta):
-		self.contas.append(conta)
+    def adicionar_conta(self, conta):
+        self.contas.append(conta)
+
 
 class PessoaFisica(Cliente):
-	def __init__(self, endereco, cpf, nome, data_nascimento):
-		super().__init__(endereco)
-		self.cpf = cpf
-		self.nome = nome
-		self.data_nascimento = data_nascimento
+    def __init__(self, endereco, cpf, nome, data_nascimento):
+        super().__init__(endereco)
+        self.cpf = cpf
+        self.nome = nome
+        self.data_nascimento = data_nascimento
 
-	def listar_contas(self):
-		print("\n================ CONTAS ================")
-		print("|                                      |")
-		if not self.contas:
-			print("|       Não foram criadas contas       |")
-			print("|          para este usuario.          |")
-			print("|                                      |")
-		else:
-			for conta in ContaIterador(self.contas):
-				print(conta)
-		print("========================================")
+    def listar_contas(self):
+        print("\n================ CONTAS ================")
+        print("|                                      |")
+        if not self.contas:
+            print("|       Não foram criadas contas       |")
+            print("|          para este usuario.          |")
+            print("|                                      |")
+        else:
+            for conta in ContaIterador(self.contas):
+                print(conta)
+        print("========================================")
 
-	def __repr__(self):
-		return f"<{self.__class__.__name__}: ('{self.cpf}')>"
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: ('{self.cpf}')>"
+
 
 class Conta:
-	def __init__(self, numero, cliente):
-		self._saldo = 0
-		self._numero = numero
-		self._agencia = "0001"
-		self._cliente = cliente
-		self._historico = Historico()
+    def __init__(self, numero, cliente):
+        self._saldo = 0
+        self._numero = numero
+        self._agencia = "0001"
+        self._cliente = cliente
+        self._historico = Historico()
 
-	@property
-	def saldo(self):
-		return self._saldo
-	
-	@property
-	def numero(self):
-		return self._numero
-	
-	@property
-	def agencia(self):
-		return self._agencia
-	
-	@property
-	def cliente(self):
-		return self._cliente
-	
-	@property
-	def historico(self):
-		return self._historico
+    @property
+    def saldo(self):
+        return self._saldo
 
-	@classmethod
-	def nova_conta(cls, cliente, numero):
-		return cls(numero, cliente)
+    @property
+    def numero(self):
+        return self._numero
 
-	def sacar(self, valor):
-		if valor <= 0:
-			print("Operação falhou! O valor informado é inválido.")
-		elif valor > self._saldo:
-			print("Operação falhou! Saldo insuficiente.")
-		else:
-			self._saldo -= valor
-			print(f"Saque de R${valor:.2f} realizado com sucesso.")
-			return True
-		return False
+    @property
+    def agencia(self):
+        return self._agencia
 
-	def depositar(self, valor):
-		if valor <= 0:
-			print("Operação falhou! O valor informado é inválido.")
-			return False 
-		else:
-			self._saldo += valor
-			print(f"Depósito de R${valor:.2f} realizado com sucesso.")
-		return True
+    @property
+    def cliente(self):
+        return self._cliente
 
-	def resgatar_saldo(self, transacao):
-		if transacao.__class__.__name__.upper() == "DEPOSITO":
-			self._saldo += transacao.valor
-		else:
-			self._saldo -= transacao.valor
+    @property
+    def historico(self):
+        return self._historico
+
+    @classmethod
+    def nova_conta(cls, cliente, numero):
+        return cls(numero, cliente)
+
+    def sacar(self, valor):
+        if valor <= 0:
+            print("Operação falhou! O valor informado é inválido.")
+        elif valor > self._saldo:
+            print("Operação falhou! Saldo insuficiente.")
+        else:
+            self._saldo -= valor
+            print(f"Saque de R${valor:.2f} realizado com sucesso.")
+            return True
+        return False
+
+    def depositar(self, valor):
+        if valor <= 0:
+            print("Operação falhou! O valor informado é inválido.")
+            return False
+        else:
+            self._saldo += valor
+            print(f"Depósito de R${valor:.2f} realizado com sucesso.")
+        return True
+
+    def resgatar_saldo(self, transacao):
+        if transacao.__class__.__name__.upper() == "DEPOSITO":
+            self._saldo += transacao.valor
+        else:
+            self._saldo -= transacao.valor
+
 
 class ContaCorrente(Conta):
-	def __init__(self, numero, cliente, limite=500.0, limite_saques=3):
-		super().__init__(numero, cliente)
-		self._limite = limite
-		self._limite_saques = limite_saques
+    def __init__(self, numero, cliente, limite=500.0, limite_saques=3):
+        super().__init__(numero, cliente)
+        self._limite = limite
+        self._limite_saques = limite_saques
 
-	def sacar(self, valor):
-		numero_saques = len([transacao for transacao in self.historico.transacoes if transacao["tipo"] == "Saque"])
+    def sacar(self, valor):
+        numero_saques = len([
+            transacao for transacao in self.historico.transacoes
+            if transacao["tipo"] == "Saque"
+        ])
 
-		if numero_saques >= self._limite_saques:
-			print("Operação falhou! Limite de saques diários excedido.")
-		elif valor > self._limite:
-			print("Operação falhou! O valor do saque excede o limite.")
-		else:
-			return super().sacar(valor)
-		return False
+        if numero_saques >= self._limite_saques:
+            print("Operação falhou! Limite de saques diários excedido.")
+        elif valor > self._limite:
+            print("Operação falhou! O valor do saque excede o limite.")
+        else:
+            return super().sacar(valor)
+        return False
 
-	def __str__(self):
-		return (
-			"|   " + f"AGENCIA: {self.agencia}".ljust(35) + "|\n" +
-			"|   " + f"CONTA: {self.numero}".ljust(35) + "|\n" +
-			"|   " + f"TITULAR: {self.cliente.nome}".ljust(35) + "|\n" +
-			"|                                      |")
-	
-	def __repr__(self):
-		return f"<{self.__class__.__name__}: ('{self.agencia}', '{self.numero}', '{self.cliente.nome}')>"
+    def __str__(self):
+        return (
+            "|   " + f"AGENCIA: {self.agencia}".ljust(35) + "|\n" +
+            "|   " + f"CONTA: {self.numero}".ljust(35) + "|\n" +
+            "|   " + f"TITULAR: {self.cliente.nome}".ljust(35) + "|\n" +
+            "|                                      |")
+
+    def __repr__(self):
+        return f"<{self.__class__.__name__}: \
+        ('{self.agencia}', '{self.numero}', '{self.cliente.nome}')>"
+
 
 class Historico:
-	def __init__(self):
-		self._transacoes = []
+    def __init__(self):
+        self._transacoes = []
 
-	@property
-	def transacoes(self):
-		return self._transacoes
+    @property
+    def transacoes(self):
+        return self._transacoes
 
-	def resgatar_transacao(self, transacao, data):
-		self.transacoes.append({
-			"tipo": transacao.__class__.__name__,
-			"valor": transacao.valor,
-			"data": data
-		})
+    def resgatar_transacao(self, transacao, data):
+        self.transacoes.append({
+            "tipo": transacao.__class__.__name__,
+            "valor": transacao.valor,
+            "data": data
+        })
 
-	def adicionar_transacao(self, transacao, conta_numero):
-		nova_transacao = {
-				"tipo": transacao.__class__.__name__,
-				"valor": transacao.valor,
-				"data": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-			}
-		try:
-			filepath = ROOT_PATH / "transacoes.csv"
-			file_exists = filepath.exists()
+    def adicionar_transacao(self, transacao, conta_numero):
+        nova_transacao = {
+                "tipo": transacao.__class__.__name__,
+                "valor": transacao.valor,
+                "data": datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+            }
+        try:
+            filepath = ROOT_PATH / "transacoes.csv"
+            file_exists = filepath.exists()
 
-			with open(filepath, "a", newline='', encoding='utf-8') as csvfile:
-				writer = csv.writer(csvfile)
-				if not file_exists:
-					writer.writerow(["TIPO", "VALOR", "DATA", "CONTA_NUMERO"])
-				writer.writerow([
-					nova_transacao["tipo"],
-					nova_transacao["valor"],
-					nova_transacao["data"],
-					conta_numero
-				])
-		except Exception as exc:
-			print(f"Erro ao registrar transação no CSV: {exc}.\nPor favor, tente novamente.")
-			return False
-		self.transacoes.append(nova_transacao)
-		return True
+            with open(filepath, "a", newline='', encoding='utf-8') as csvfile:
+                writer = csv.writer(csvfile)
+                if not file_exists:
+                    writer.writerow(["TIPO", "VALOR", "DATA", "CONTA_NUMERO"])
+                writer.writerow([
+                    nova_transacao["tipo"],
+                    nova_transacao["valor"],
+                    nova_transacao["data"],
+                    conta_numero
+                ])
+        except Exception as exc:
+            print(f"Erro ao registrar transação no CSV: {exc}.")
+            print("Por favor, tente novamente.")
+            return False
+        self.transacoes.append(nova_transacao)
+        return True
 
-	def gerar_relatorio(self, tipo_transacao=None):
-		for transacao in self._transacoes:
-			if tipo_transacao is None or transacao["tipo"] == tipo_transacao:
-				yield transacao
+    def gerar_relatorio(self, tipo_transacao=None):
+        for transacao in self._transacoes:
+            if tipo_transacao is None or transacao["tipo"] == tipo_transacao:
+                yield transacao
 
-	def transacoes_do_dia(self):
-		transacoes_do__dia = []
-		for transacao in self._transacoes:
-			if datetime.strptime(transacao["data"], "%d-%m-%Y %H:%M:%S").date() == date.today():
-				transacoes_do__dia.append(transacao)
-		return transacoes_do__dia
+    def transacoes_do_dia(self):
+        transacoes_do__dia = []
+        d_mask = "%d-%m-%Y %H:%M:%S"
+        for transacao in self._transacoes:
+            d_transacao = datetime.strptime(transacao["data"], d_mask).date()
+            if d_transacao == date.today():
+                transacoes_do__dia.append(transacao)
+        return transacoes_do__dia
+
 
 class Transacao(ABC):
-	@property
-	def valor(self):
-		pass
+    @property
+    def valor(self):
+        pass
 
-	@abstractmethod
-	def registrar(self, conta: Conta):
-		pass
+    @abstractmethod
+    def registrar(self, conta: Conta):
+        pass
+
 
 class Deposito(Transacao):
-	def __init__(self, valor: float):
-		self._valor = valor
+    def __init__(self, valor: float):
+        self._valor = valor
 
-	@property
-	def valor(self):
-		return self._valor
+    @property
+    def valor(self):
+        return self._valor
 
-	def registrar(self, conta: Conta):
-		sucesso_transacao = conta.depositar(self.valor)
-		if sucesso_transacao:
-			sucesso_transacao = conta.historico.adicionar_transacao(self, conta.numero)
-		return sucesso_transacao
+    def registrar(self, conta: Conta):
+        sucesso = conta.depositar(self.valor)
+        if sucesso:
+            sucesso = conta.historico.adicionar_transacao(self, conta.numero)
+        return sucesso
+
 
 class Saque(Transacao):
-	def __init__(self, valor: float):
-		self._valor = valor
+    def __init__(self, valor: float):
+        self._valor = valor
 
-	@property
-	def valor(self):
-		return self._valor
+    @property
+    def valor(self):
+        return self._valor
 
-	def registrar(self, conta: Conta):
-		sucesso_transacao = conta.sacar(self.valor)
-		if sucesso_transacao:
-			sucesso_transacao = conta.historico.adicionar_transacao(self, conta.numero)
-		return sucesso_transacao
+    def registrar(self, conta: Conta):
+        sucesso = conta.sacar(self.valor)
+        if sucesso:
+            sucesso = conta.historico.adicionar_transacao(self, conta.numero)
+        return sucesso
+
 
 def menu(option):
-	welcome_menu = """
-	========= BEM VINDO! =========
-	|                            |
-	|   [1] Entrar               |
-	|   [2] Criar usuario        |
-	|   [0] Sair                 |
-	|                            |
-	==============================
+    welcome_menu = """
+    ========= BEM VINDO! =========
+    |                            |
+    |   [1] Entrar               |
+    |   [2] Criar usuario        |
+    |   [0] Sair                 |
+    |                            |
+    ==============================
 
-	=> """
-	main_menu = """
-	============ MENU ============
-	|                            |
-	|   [1] Depositar            |
-	|   [2] Sacar                |
-	|   [3] Vizualizar extrato   |
-	|   [4] Criar conta          |
-	|   [5] Listar contas        |
-	|   [0] Sair                 |
-	|                            |
-	==============================
+    => """
+    main_menu = """
+    ============ MENU ============
+    |                            |
+    |   [1] Depositar            |
+    |   [2] Sacar                |
+    |   [3] Vizualizar extrato   |
+    |   [4] Criar conta          |
+    |   [5] Listar contas        |
+    |   [0] Sair                 |
+    |                            |
+    ==============================
 
-	=> """
-	if option == "welcome":
-		return textwrap.dedent(welcome_menu)
-	elif option == "main":
-		return textwrap.dedent(main_menu)
-	else:
-		return "NULL"
+    => """
+    if option == "welcome":
+        return textwrap.dedent(welcome_menu)
+    elif option == "main":
+        return textwrap.dedent(main_menu)
+    else:
+        return "NULL"
+
 
 def log_transacao(func):
-	@functools.wraps(func)
-	def envelope(*args, **kwargs):
-		result = func(*args, **kwargs)
-		tipo = func.__name__.upper()
-		data = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
-		try:
-			with open(ROOT_PATH / "log.txt", "a", encoding="utf-8") as file:
-				file.write(f"{data} {tipo} executada com argumentos:\n")
-				for arg in args:
-					file.write(f"\t{repr(arg)}\n")
-				for key, value in kwargs.items():
-					file.write(f"\t{key}={value}\n")
-				file.write(f"RETORNO: {result}\n\n")
-		except Exception as exc:
-			print(f"Erro ao escrever no log: {exc}")
+    @functools.wraps(func)
+    def envelope(*args, **kwargs):
+        result = func(*args, **kwargs)
+        tipo = func.__name__.upper()
+        data = datetime.now().strftime("%d-%m-%Y %H:%M:%S")
+        try:
+            with open(ROOT_PATH / "log.txt", "a", encoding="utf-8") as file:
+                file.write(f"{data} {tipo} executada com argumentos:\n")
+                for arg in args:
+                    file.write(f"\t{repr(arg)}\n")
+                for key, value in kwargs.items():
+                    file.write(f"\t{key}={value}\n")
+                file.write(f"RETORNO: {result}\n\n")
+        except Exception as exc:
+            print(f"Erro ao escrever no log: {exc}")
 
-	return envelope
+    return envelope
+
 
 def buscar_conta(cpf, numero_conta, contas):
-	for conta in contas:
-		if conta.cliente.cpf == cpf and conta.numero == numero_conta:
-			return conta
-	print("Conta não encontrada ou não pertence ao usuário.")
-	return None
+    for conta in contas:
+        if conta.cliente.cpf == cpf and conta.numero == numero_conta:
+            return conta
+    print("Conta não encontrada ou não pertence ao usuário.")
+    return None
+
 
 @log_transacao
 def sacar(user, contas):
-	n_conta = input("\nDigite o número da conta para o saque: ").strip()
-	try:
-		n_conta = int(n_conta)
-	except ValueError:
-		print("Operação falhou! O número informado é inválido.")
-		return False
-	conta = buscar_conta(user.cpf, n_conta, contas)
-	if not conta:
-		return False
+    n_conta = input("\nDigite o número da conta para o saque: ").strip()
+    try:
+        n_conta = int(n_conta)
+    except ValueError:
+        print("Operação falhou! O número informado é inválido.")
+        return False
+    conta = buscar_conta(user.cpf, n_conta, contas)
+    if not conta:
+        return False
 
-	saque = input("Informe o valor do saque: ")
-	try:
-		saque = float(saque)
-		transacao = Saque(saque)
-		sucesso = user.realizar_transacao(conta=conta, transacao=transacao)
-		if not sucesso:
-			return False
-	except ValueError:
-		print("Operação falhou! O valor informado é inválido.")
-		return False
-	return True
+    saque = input("Informe o valor do saque: ")
+    try:
+        saque = float(saque)
+        transacao = Saque(saque)
+        sucesso = user.realizar_transacao(conta=conta, transacao=transacao)
+        if not sucesso:
+            return False
+    except ValueError:
+        print("Operação falhou! O valor informado é inválido.")
+        return False
+    return True
+
 
 @log_transacao
 def depositar(user, contas):
-	n_conta = input("\nDigite o número da conta para o depósito: ").strip()
-	try:
-		n_conta = int(n_conta)
-	except ValueError:
-		print("Operação falhou! O número informado é inválido.")
-		return False
-	conta = buscar_conta(user.cpf, n_conta, contas)
-	if not conta:
-		return False
+    n_conta = input("\nDigite o número da conta para o depósito: ").strip()
+    try:
+        n_conta = int(n_conta)
+    except ValueError:
+        print("Operação falhou! O número informado é inválido.")
+        return False
+    conta = buscar_conta(user.cpf, n_conta, contas)
+    if not conta:
+        return False
 
-	deposito = input("Valor a ser depositado: ")
-	try:
-		deposito = float(deposito)
-		transacao = Deposito(deposito)
-		sucesso = user.realizar_transacao(conta=conta, transacao=transacao)
-		if not sucesso:
-			return False
-	except ValueError:
-		print("Operação falhou! O valor informado é inválido.")
-		return False
-	return True
+    deposito = input("Valor a ser depositado: ")
+    try:
+        deposito = float(deposito)
+        transacao = Deposito(deposito)
+        sucesso = user.realizar_transacao(conta=conta, transacao=transacao)
+        if not sucesso:
+            return False
+    except ValueError:
+        print("Operação falhou! O valor informado é inválido.")
+        return False
+    return True
+
 
 def filtrar_extrato():
-	while True:
-		filtro = input("\nDeseja filtrar por tipo de transação? [Y/N] => ").strip()
-		if filtro.upper() == 'Y':
-			filtro = input("\nFiltrar por:\n\t[0]Apenas saques\n\t[1]Apenas depósitos\n\n\t=> ").strip()
-			if filtro == '0':
-				filtro = "Saque"
-			elif filtro == '1':
-				filtro = "Deposito"
-			else:
-				print("Operação inválida, por favor selecione novamente.")
-				continue
-			return filtro
-		elif filtro.upper() == 'N':
-			filtro = None
-			return filtro
-		else:
-			print("Operação inválida, por favor selecione novamente.")
+    while True:
+        filtro = input(
+            "\nDeseja filtrar por tipo de transação? [Y/N] => "
+        ).strip()
+        if filtro.upper() == 'Y':
+            filtro = input(
+                "\nFiltrar por:\n"
+                "\t[0]Apenas saques\n"
+                "\t[1]Apenas depósitos\n\n\t=> "
+            ).strip()
+            if filtro == '0':
+                filtro = "Saque"
+            elif filtro == '1':
+                filtro = "Deposito"
+            else:
+                print("Operação inválida, por favor selecione novamente.")
+                continue
+            return filtro
+        elif filtro.upper() == 'N':
+            filtro = None
+            return filtro
+        else:
+            print("Operação inválida, por favor selecione novamente.")
+
 
 @log_transacao
 def visualizar_extrato(user, contas):
-	n_conta = input("\nDigite o número da conta, ou digite \"0\" para ver o extrato de todas as contas: ").strip()
-	try:
-		n_conta = int(n_conta)
-	except ValueError:
-		print("Operação falhou! O número informado é inválido.")
-		return False
-	if n_conta != 0:
-		conta = buscar_conta(user.cpf, n_conta, contas)
-		if conta:
-			conta_escolhida = [conta]
-		else:
-			return False
-	else:
-		if not user.contas:
-			print("\nNenhuma conta encontrada.")
-			return False
-		conta_escolhida = user.contas
+    n_conta = input(
+        "\nDigite o número da conta, ou digite \"0\" "
+        "para ver o extrato de todas as contas: "
+    ).strip()
+    try:
+        n_conta = int(n_conta)
+    except ValueError:
+        print("Operação falhou! O número informado é inválido.")
+        return False
+    if n_conta != 0:
+        conta = buscar_conta(user.cpf, n_conta, contas)
+        if conta:
+            conta_escolhida = [conta]
+        else:
+            return False
+    else:
+        if not user.contas:
+            print("\nNenhuma conta encontrada.")
+            return False
+        conta_escolhida = user.contas
 
-	filtro = filtrar_extrato()
-	for conta in conta_escolhida:
-		tem_transacao = False
-		extrato = ""
-		for transacao in conta.historico.gerar_relatorio(tipo_transacao=filtro):
-			tem_transacao = True
-			extrato += "\n|" + f"{transacao['data']}".rjust(38) + "   |"
-			if transacao["tipo"] == "Deposito":
-				extrato += "\n|" + f"+ R$ {transacao['valor']:.2f}".rjust(38) + "   |"
-			else:
-				extrato += "\n|" + f"- R$ {transacao['valor']:.2f}".rjust(38) + "   |"
-			extrato += "\n|                                         |"
-		if not tem_transacao:
-			extrato = "\n|   Não foram realizadas movimentações.   |"
-		print("\n================= EXTRATO =================")
-		print("|                                         |")
-		print("|" + f"CONTA: {conta.numero}".rjust(38) + "   |")
-		print("|                                         |", end="")
-		print(extrato)
-		print("|" + f"TOTAL: R${conta.saldo:.2f}".rjust(38) + "   |")
-		print("|                                         |")
-		print("===========================================\n")
-	return True
+    filtro = filtrar_extrato()
+    for conta in conta_escolhida:
+        tem_transacao = False
+        extrato = ""
+        for transacao in conta.historico.gerar_relatorio(tipo_transacao=filtro):
+            tem_transacao = True
+            extrato += "\n|" + f"{transacao['data']}".rjust(38) + "   |"
+            if transacao["tipo"] == "Deposito":
+                extrato += (
+                    "\n|" + f"+ R$ {transacao['valor']:.2f}".rjust(38) + "   |"
+                )
+            else:
+                extrato += (
+                    "\n|" + f"- R$ {transacao['valor']:.2f}".rjust(38) + "   |"
+                )
+            extrato += "\n|                                         |"
+        if not tem_transacao:
+            extrato = "\n|   Não foram realizadas movimentações.   |"
+        print("\n================= EXTRATO =================")
+        print("|                                         |")
+        print("|" + f"CONTA: {conta.numero}".rjust(38) + "   |")
+        print("|                                         |", end="")
+        print(extrato)
+        print("|" + f"TOTAL: R${conta.saldo:.2f}".rjust(38) + "   |")
+        print("|                                         |")
+        print("===========================================\n")
+    return True
+
 
 @log_transacao
 def criar_conta(user, contas):
-	numero_conta = len(contas) + 1
-	conta = ContaCorrente.nova_conta(cliente=user, numero=numero_conta)
-	if not registrar_conta_csv(conta):
-		return False
-	contas.append(conta)
-	user.adicionar_conta(conta)
-	print(f"Conta criada com sucesso!")
-	return True
+    numero_conta = len(contas) + 1
+    conta = ContaCorrente.nova_conta(cliente=user, numero=numero_conta)
+    if not registrar_conta_csv(conta):
+        return False
+    contas.append(conta)
+    user.adicionar_conta(conta)
+    print("Conta criada com sucesso!")
+    return True
+
 
 def perfil_user(user, contas):
-	while (True):
-		cmd = input(menu("main")).strip()
-		if cmd == "0":
-			break
-		elif cmd == "1":
-			depositar(user, contas)
-		elif cmd == "2":
-			sacar(user, contas)
-		elif cmd == "3":
-			visualizar_extrato(user, contas)
-		elif cmd == "4":
-			criar_conta(user, contas)
-		elif cmd == "5":
-			user.listar_contas()
-		else:
-			print("Operação inválida, por favor selecione novamente.")
+    while (True):
+        cmd = input(menu("main")).strip()
+        if cmd == "0":
+            break
+        elif cmd == "1":
+            depositar(user, contas)
+        elif cmd == "2":
+            sacar(user, contas)
+        elif cmd == "3":
+            visualizar_extrato(user, contas)
+        elif cmd == "4":
+            criar_conta(user, contas)
+        elif cmd == "5":
+            user.listar_contas()
+        else:
+            print("Operação inválida, por favor selecione novamente.")
+
 
 def registrar_user_csv(user):
-	try:
-		filepath = ROOT_PATH / "usuarios.csv"
-		file_exists = filepath.exists()
+    try:
+        filepath = ROOT_PATH / "usuarios.csv"
+        file_exists = filepath.exists()
 
-		with open(ROOT_PATH / "usuarios.csv", "a", newline='', encoding='utf-8') as csvfile:
-			writer = csv.writer(csvfile)
-			if not file_exists:
-				writer.writerow(["NOME", "CPF", "DATA_NASCIMENTO", "ENDERECO"])
-			writer.writerow([
-				user.nome,
-				user.cpf,
-				user.data_nascimento.strftime("%d/%m/%Y"),
-				user.endereco
-			])
-	except Exception as exc:
-		print(f"Erro ao registrar usuário no CSV: {exc}.\nPor favor, tente novamente.")
-		return False
-	return True
+        with open(ROOT_PATH / "usuarios.csv", "a", newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            if not file_exists:
+                writer.writerow(["NOME", "CPF", "DATA_NASCIMENTO", "ENDERECO"])
+            writer.writerow([
+                user.nome,
+                user.cpf,
+                user.data_nascimento.strftime("%d/%m/%Y"),
+                user.endereco
+            ])
+    except Exception as exc:
+        print(f"Erro ao registrar usuário no CSV: {exc}.")
+        print("Por favor, tente novamente.")
+        return False
+    return True
+
 
 def carregar_users_csv():
-	users = []
-	try:
-		filepath = ROOT_PATH / "usuarios.csv"
-		if not filepath.exists():
-			return users
+    users = []
+    try:
+        filepath = ROOT_PATH / "usuarios.csv"
+        if not filepath.exists():
+            return users
 
-		with open(filepath, "r", newline='', encoding="utf-8") as csvfile:
-			reader = csv.DictReader(csvfile)
-			for row in reader:
-				nome = row["NOME"]
-				cpf = row["CPF"]
-				data_nascimento = datetime.strptime(row["DATA_NASCIMENTO"], "%d/%m/%Y")
-				endereco = row["ENDERECO"]
-				user = PessoaFisica(endereco=endereco, cpf=cpf, nome=nome, data_nascimento=data_nascimento)
-				users.append(user)
-	except Exception as exc:
-		print(f"Erro ao carregar usuários do CSV: {exc}.\nPor favor, tente novamente.")
-		return []
-	return users
+        with open(filepath, "r", newline='', encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                nome = row["NOME"]
+                cpf = row["CPF"]
+                nascimento = datetime.strptime(row["DATA_NASCIMENTO"], "%d/%m/%Y")
+                endereco = row["ENDERECO"]
+                user = PessoaFisica(
+                    endereco=endereco,
+                    cpf=cpf,
+                    nome=nome,
+                    data_nascimento=nascimento
+                )
+                users.append(user)
+    except Exception as exc:
+        print(f"Erro ao carregar usuários no CSV: {exc}.")
+        print("Por favor, tente novamente.")
+        return []
+    return users
+
 
 def registrar_conta_csv(conta):
-	try:
-		filepath = ROOT_PATH / "contas.csv"
-		file_exists = filepath.exists()
+    try:
+        filepath = ROOT_PATH / "contas.csv"
+        file_exists = filepath.exists()
 
-		with open(filepath, "a", newline='', encoding='utf-8') as csvfile:
-			writer = csv.writer(csvfile)
-			if not file_exists:
-				writer.writerow(["AGENCIA", "NUMERO", "CPF_TITULAR"])
-			writer.writerow([
-				conta.agencia,
-				conta.numero,
-				conta.cliente.cpf,
-			])
-	except Exception as exc:
-		print(f"Erro ao registrar contas no CSV: {exc}.\nPor favor, tente novamente.")
-		return False
-	return True
+        with open(filepath, "a", newline='', encoding='utf-8') as csvfile:
+            writer = csv.writer(csvfile)
+            if not file_exists:
+                writer.writerow(["AGENCIA", "NUMERO", "CPF_TITULAR"])
+            writer.writerow([
+                conta.agencia,
+                conta.numero,
+                conta.cliente.cpf,
+            ])
+    except Exception as exc:
+        print(f"Erro ao registrar contas no CSV: {exc}.")
+        print("Por favor, tente novamente.")
+        return False
+    return True
+
 
 def carregar_contas_csv(users):
-	contas = []
-	try:
-		filepath = ROOT_PATH / "contas.csv"
-		if not filepath.exists():
-			return contas
+    contas = []
+    try:
+        filepath = ROOT_PATH / "contas.csv"
+        if not filepath.exists():
+            return contas
 
-		with open(filepath, "r", encoding="utf-8") as csvfile:
-			reader = csv.DictReader(csvfile)
-			for row in reader:
-				numero_conta = int(row["NUMERO"])
-				cliente_cpf = row["CPF_TITULAR"]
-				for user in users:
-					if user.cpf == cliente_cpf:
-						conta = ContaCorrente.nova_conta(cliente=user, numero=numero_conta)
-						contas.append(conta)
-						user.adicionar_conta(conta)
-						break
-	except Exception as exc:
-		print(f"Erro ao carregar contas do CSV: {exc}.\nPor favor, tente novamente.")
-		return []
-	return contas
+        with open(filepath, "r", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                n_conta = int(row["NUMERO"])
+                cliente_cpf = row["CPF_TITULAR"]
+                for user in users:
+                    if user.cpf == cliente_cpf:
+                        conta = ContaCorrente.nova_conta(cliente=user, numero=n_conta)
+                        contas.append(conta)
+                        user.adicionar_conta(conta)
+                        break
+    except Exception as exc:
+        print(f"Erro ao carregar contas no CSV: {exc}.")
+        print("Por favor, tente novamente.")
+        return []
+    return contas
+
 
 def carregar_transacoes_csv(contas):
-	try:
-		filepath = ROOT_PATH / "transacoes.csv"
-		if not filepath.exists():
-			return True
+    try:
+        filepath = ROOT_PATH / "transacoes.csv"
+        if not filepath.exists():
+            return True
 
-		with open(filepath, "r", encoding="utf-8") as csvfile:
-			reader = csv.DictReader(csvfile)
-			for row in reader:
-				tipo = row["TIPO"]
-				valor = float(row["VALOR"])
-				data = row["DATA"]
-				conta_numero = int(row["CONTA_NUMERO"])
+        with open(filepath, "r", encoding="utf-8") as csvfile:
+            reader = csv.DictReader(csvfile)
+            for row in reader:
+                tipo = row["TIPO"]
+                valor = float(row["VALOR"])
+                data = row["DATA"]
+                conta_numero = int(row["CONTA_NUMERO"])
 
-				for conta in contas:
-					if conta.numero == conta_numero:
-						if tipo == "Deposito":
-							transacao = Deposito(valor)
-						elif tipo == "Saque":
-							transacao = Saque(valor)
-						else:
-							print(f"Tipo de transação desconhecido: {tipo}")
-							continue
-						conta.historico.resgatar_transacao(transacao, data)
-						conta.resgatar_saldo(transacao)
-	except Exception as exc:
-		print(f"Erro ao carregar transações do CSV: {exc}.\nPor favor, tente novamente.")
-		return False
-	return True
+                for conta in contas:
+                    if conta.numero == conta_numero:
+                        if tipo == "Deposito":
+                            transacao = Deposito(valor)
+                        elif tipo == "Saque":
+                            transacao = Saque(valor)
+                        else:
+                            print(f"Tipo de transação desconhecido: {tipo}")
+                            continue
+                        conta.historico.resgatar_transacao(transacao, data)
+                        conta.resgatar_saldo(transacao)
+    except Exception as exc:
+        print(f"Erro ao carregar transações do CSV: {exc}.")
+        print("Por favor, tente novamente.")
+        return False
+    return True
 
 
 @log_transacao
 def adicionar_user(users):
-	nome = input("Digite o nome do usuário: ").strip()
-	if not nome:
-		print("Todos os campos são obrigatórios.")
-		return False
+    nome = input("Digite o nome do usuário: ").strip()
+    if not nome:
+        print("Todos os campos são obrigatórios.")
+        return False
 
-	nascimento = input("Digite a data de nascimento do usuário (DD/MM/AAAA): ").strip()
-	if (
-		not nascimento or
-		not nascimento[:2].isdigit() or
-		not nascimento[3:5].isdigit() or
-		not nascimento[6:].isdigit() or
-		len(nascimento) != 10 or
-		nascimento[2] != '/' or
-		nascimento[5] != '/'
-	):
-		print("\nData de nascimento inválida. Por favor, use o formato DD/MM/AAAA.")
-		return False
-	try:
-		nascimento = datetime.strptime(nascimento, "%d/%m/%Y")
-	except ValueError:
-		print("\nData de nascimento inválida. Por favor, use o formato DD/MM/AAAA e insira uma data válida.")
-		return False
+    nascimento = input(
+        "Digite a data de nascimento do usuário (DD/MM/AAAA): "
+    ).strip()
+    if (
+        not nascimento or
+        not nascimento[:2].isdigit() or
+        not nascimento[3:5].isdigit() or
+        not nascimento[6:].isdigit() or
+        len(nascimento) != 10 or
+        nascimento[2] != '/' or
+        nascimento[5] != '/'
+    ):
+        print(
+            "\nData de nascimento inválida. "
+            "Por favor, use o formato DD/MM/AAAA."
+        )
+        return False
+    try:
+        nascimento = datetime.strptime(nascimento, "%d/%m/%Y")
+    except ValueError:
+        print(
+            "\nData de nascimento inválida. "
+            "Por favor, use o formato DD/MM/AAAA e insira uma data válida."
+        )
+        return False
 
-	cpf = input("Digite o CPF do usuário (apenas números): ").strip()
-	if not cpf or not cpf.isdigit() or len(cpf) != 11:
-		print("\nCPF inválido. Deve conter apenas números e ter 11 dígitos.")
-		return False
-	for user in users:
-		if user.cpf == cpf:
-			print("\nUsuário já cadastrado com esse CPF.")
-			return False
+    cpf = input("Digite o CPF do usuário (apenas números): ").strip()
+    if not cpf or not cpf.isdigit() or len(cpf) != 11:
+        print("\nCPF inválido. Deve conter apenas números e ter 11 dígitos.")
+        return False
+    for user in users:
+        if user.cpf == cpf:
+            print("\nUsuário já cadastrado com esse CPF.")
+            return False
 
-	endereco = input("Digite o endereço do usuário (formato: Logradouro, Número - Bairro - Cidade/UF): ").strip()
-	if not endereco:
-		print("\nTodos os campos são obrigatórios.")
-		return False
+    endereco = input(
+        "Digite o endereço do usuário "
+        "(formato: Logradouro, Número - Bairro - Cidade/UF): "
+    ).strip()
+    if not endereco:
+        print("\nTodos os campos são obrigatórios.")
+        return False
 
-	novo_cliente = PessoaFisica(
-		endereco=endereco,
-		cpf=cpf,
-		nome=nome,
-		data_nascimento=nascimento)
-	if not registrar_user_csv(novo_cliente):
-		return False
-	users.append(novo_cliente)
-	print("\nUsuário cadastrado com sucesso!")
-	return True
+    novo_cliente = PessoaFisica(
+        endereco=endereco,
+        cpf=cpf,
+        nome=nome,
+        data_nascimento=nascimento)
+    if not registrar_user_csv(novo_cliente):
+        return False
+    users.append(novo_cliente)
+    print("\nUsuário cadastrado com sucesso!")
+    return True
+
 
 def main():
-	users = carregar_users_csv()
-	contas = carregar_contas_csv(users)
-	carregar_transacoes_csv(contas)
+    users = carregar_users_csv()
+    contas = carregar_contas_csv(users)
+    carregar_transacoes_csv(contas)
 
-	while (True):
-		cmd = input(menu("welcome"))
-		if cmd == "0":
-			break
-		elif cmd == "1":
-			print("Digite o CPF do usuário. Não inclua espaços, pontos ou traços no CPF.\n")
-			cpf = input("=> ").strip()
-			for user in users:
-				if cpf == user.cpf:
-					print(f"\nBem vindo/a, {user.nome}!")
-					perfil_user(user, contas)
-					break
-			else:
-				print("Usuário não encontrado. Por favor, tente novamente.")
-		elif cmd == "2":
-			adicionar_user(users)
-		else:
-			print("Operação inválida, por favor selecione novamente.")
+    while (True):
+        cmd = input(menu("welcome"))
+        if cmd == "0":
+            break
+        elif cmd == "1":
+            print(
+                "Digite o CPF do usuário. "
+                "Não inclua espaços, pontos ou traços no CPF.",
+                end="\n\n"
+            )
+            cpf = input("=> ").strip()
+            for user in users:
+                if cpf == user.cpf:
+                    print(f"\nBem vindo/a, {user.nome}!")
+                    perfil_user(user, contas)
+                    break
+            else:
+                print("Usuário não encontrado. Por favor, tente novamente.")
+        elif cmd == "2":
+            adicionar_user(users)
+        else:
+            print("Operação inválida, por favor selecione novamente.")
+
 
 main()
