@@ -1,10 +1,10 @@
 # 🏦 Sistema Bancário em Python
 
-Este é um projeto de sistema bancário desenvolvido em Python, utilizando os princípios de **Programação Orientada a Objetos (POO)**. O sistema permite o gerenciamento de usuários, contas bancárias, operações financeiras e exibição de extratos de maneira estruturada e modular.
+Este é um projeto de sistema bancário desenvolvido em Python, utilizando os princípios de **Programação Orientada a Objetos (POO)**. O sistema permite o gerenciamento de usuários, contas bancárias, operações financeiras e exibição de extratos de maneira estruturada e modular, com persistência de dados em arquivos CSV.
 
 ## 🧠 Sobre o Projeto
 
-Este sistema simula operações bancárias simples por meio de um menu de terminal interativo. Ele foi desenvolvido com fins educacionais para praticar conceitos fundamentais de POO em Python, como:
+O sistema simula um banco simples com menu interativo, usando princípios de **POO** e mecanismos modernos do Python:
 
 - Criação e herança de classes
 - Encapsulamento de atributos
@@ -14,6 +14,7 @@ Este sistema simula operações bancárias simples por meio de um menu de termin
 - **Decorador** para log de transações
 - **Iterador** para listar contas de forma eficiente
 - **Gerador** para filtrar transações no extrato
+- **Persistência**: usuários, contas e transações são gravados e carregados via CSV
 
 ## ⚙️ Funcionalidades
 
@@ -93,6 +94,10 @@ Cliente (abstract)  ◄──── PessoaFisica
 ## 🧼 Organização e Boas Práticas
 
 - Código modular e separado por responsabilidades
-- Sem uso de variáveis globais
 - Utilização de `try/except` para tratar entradas inválidas
-- Métodos como `__str__()` personalizados para impressão amigável
+- Métodos como `__repr()__` e `__str__()` personalizados para impressão amigável
+- Persistência simples via CSV, com consistência entre execuções
+
+---
+
+> **Observação:** Para reiniciar os dados, basta remover os arquivos usuarios.csv, contas.csv, transacoes.csv e log.txt. O sistema irá recriá-los na próxima execução.
